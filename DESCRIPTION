@@ -1,6 +1,6 @@
 Package: woe
 Type: Package
-Title: Performance analysis functions, plot ROC curve in ggplot2, AUROC, IV, WOE calculation for binary classification models
+Title: Performance analysis functions, plot ROC curve in ggplot2, AUROC, IV, WOE calculation for binary classification
 Version: 0.2
 Date: 2015-07-15
 Author: Selva Prabhakaran
