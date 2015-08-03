@@ -1,15 +1,13 @@
-Package: woe
+Package: InformationValue
 Type: Package
-Title: Performance analysis functions, plot ROC curve in ggplot2, AUROC, IV, WOE calculation for binary classification
-Version: 0.2
+Title: Performance Analysis and Companion Functions for Binary Classification Problems
+Version: 1.0.1
 Date: 2015-07-15
 Author: Selva Prabhakaran
 Maintainer: Selva Prabhakaran <selva86@gmail.com>
-Description: Provides companion function for analysing the performance of classification models, based on the problems specific objectives. There is a function to plot the ROC curve on the beautiful ggplot2 graphics framework, compute AUROC, concordance, discordance, specificity, sensitivity, confusion matrix, Youden's index, Somers D statistic etc.
+Description: Provides companion function for analysing the performance of classification models. Plot 'ROC' Curve in 'ggplot2', 'AUROC', 'IV', 'WOE' Calculation for Binary Classification.
 License: GPL (>= 2)
 LazyData: TRUE
 LazyLoad: yes
-Depends:
-    ggplot2
-Import:
-    ggplot2
+Depends: R (>= 3.0.0)
+Imports: ggplot2
