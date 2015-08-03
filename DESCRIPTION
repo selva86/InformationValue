@@ -6,6 +6,7 @@ Date: 2015-07-15
 Author: Selva Prabhakaran
 Maintainer: Selva Prabhakaran <selva86@gmail.com>
 Description: Provides companion function for analysing the performance of classification models. Plot 'ROC' Curve in 'ggplot2', 'AUROC', 'IV', 'WOE' Calculation for Binary Classification.
+BugReports: https://github.com/selva86/InformationValue/issues
 License: GPL (>= 2)
 LazyData: TRUE
 LazyLoad: yes
