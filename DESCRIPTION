@@ -6,6 +6,7 @@ Date: 2015-07-15
 Author: Selva Prabhakaran
 Maintainer: Selva Prabhakaran <selva86@gmail.com>
 Description: Provides companion function for analysing the performance of classification models. Also, provides function to optimise probability cut-off score based on used specified objectives, Plot 'ROC' Curve in 'ggplot2', 'AUROC', 'IV', 'WOE' Calculation, etc to aid accuracy improvement in binary classification models.
+License: GPL (>= 2)
 BugReports: https://github.com/selva86/InformationValue/issues License: GPL (>= 2)
 LazyData: TRUE
 LazyLoad: yes
