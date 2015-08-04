@@ -17,7 +17,7 @@ misClassError(actuals, predictedScores, threshold = 0.5)
 The misclassification error, which tells what proportion of predicted direction did not match with the actuals.
 }
 \description{
-Calculate the percentage misclassification error for this logit model's fitted values.
+Calculate the percentage misclassification error for the given actuals and probaility scores.
 }
 \details{
 For a given binary response actuals and predicted probability scores, misclassfication error is the number of mismatches between the predicted and actuals direction of the binary y variable.
