@@ -1,7 +1,7 @@
 Package: InformationValue
 Type: Package
 Title: Performance Analysis and Companion Functions for Accuracy Improvement for Binary Classification Problems
-Version: 1.1.0
+Version: 1.1.1
 Date: 2015-07-15
 Author: Selva Prabhakaran
 Maintainer: Selva Prabhakaran <selva86@gmail.com>
