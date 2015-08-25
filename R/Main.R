@@ -333,7 +333,7 @@ plotROC <- function(actuals, predictedScores, Show.labels=F, returnSensitivityMa
             axis.title.y=element_text(size=15, colour = "steelblue")))
   } else {
     print(bp + geom_ribbon(color="#3399FF", fill="#3399FF", aes(ymin=0, ymax=sensitivity)) +
-      labs(title="ROC Curve", x="1-Specificity", y="Sensitivity") +
+      labs(title="ROC Curve", x="1-Specificity (FPR)", y="Sensitivity (TPR)") +
       annotate("text", label=paste("AUROC:", round(AREAROC, 4)), x=0.55, y=0.35, colour="white", size=8) +
       theme(legend.position="none",
             plot.title=element_text(size=20, colour = "steelblue"),
