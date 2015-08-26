@@ -36,7 +36,7 @@ The plotROC uses the `ggplot2` framework to create the ROC curve and prints the 
 library(InformationValue)
 ```
 
-```{r, results='asis', fig.show='hold', fig.height=5, fig.width=5, fig.cap = "ROC Curve", prompt=TRUE, highlight=TRUE, collapse=TRUE, message=FALSE, warning=FALSE}
+```{r, results='asis', fig.show='hold', fig.height=5, fig.width=5, prompt=TRUE, highlight=TRUE, collapse=TRUE, message=FALSE, warning=FALSE}
 data('ActualsAndScores')
 plotROC(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
 ```
@@ -48,9 +48,8 @@ You can also get the sensitivity matrix used to make the plot by turning on `ret
 sensMat <- plotROC(actuals=ActualsAndScores$Actuals,  predictedScores=ActualsAndScores$PredictedScores, returnSensitivityMat = TRUE)
 ```
     
-Here are the first 50 rows of the resulting sensitivity matrix. The 'TPR' and 'FPR' are obtained for probability cutoff scores starting from 1 to 0 in steps of -0.02. 
     
-```{r, echo=FALSE, results='asis', tab.cap="Top 10 rows of sensitivity matrix used to make the plot", prompt=TRUE, highlight=TRUE}
+```{r, echo=FALSE, results='hide', tab.cap="Top 10 rows of sensitivity matrix used to make the plot", prompt=TRUE, highlight=TRUE}
 options(scipen = 999, digits = 2)
 knitr::kable(head(sensMat, 50))
 ```  
@@ -187,8 +186,3 @@ The `IV` of the categorical variables is the sum of information value of its ind
 options(scipen = 999, digits = 4)
 IV(X=SimData$X.Cat, Y=SimData$Y.Binary)
 ```
-
-
-
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
