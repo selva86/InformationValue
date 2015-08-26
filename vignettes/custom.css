@@ -1,0 +1,30 @@
+#TOC {
+  position: fixed;
+  left: 0;
+  top: 10px;
+  width: 230px;
+  height: 100%;
+  overflow:auto;
+}
+
+/*Remove undrline in link*/
+#TOC a{
+  text-decoration: none;
+  /*color: #428bca;*/
+  color: #21759b;
+}
+
+/*Remove Bullets*/
+#TOC li {
+    list-style:none;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+
+body {
+  max-width: 700px;
+  margin: auto;
+  margin-left:290px;
+  line-height: 20px;
+}
