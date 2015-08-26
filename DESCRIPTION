@@ -12,3 +12,5 @@ LazyData: TRUE
 LazyLoad: yes
 Depends: R (>= 3.0.0)
 Imports: ggplot2
+Suggests: knitr
+VignetteBuilder: knitr
