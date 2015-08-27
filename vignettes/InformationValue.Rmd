@@ -1,6 +1,6 @@
 ---
 title: "InformationValue"
-subtitle: "Performance Analysis and Companion Functions that aid Accuracy Improvement for Binary Classification Models"
+subtitle: "Performance Analysis and Companion Functions that Aid Accuracy Improvement for Binary Classification Models"
 author: "Selva Prabhakaran"
 date: "`r Sys.Date()`"
 output: 
