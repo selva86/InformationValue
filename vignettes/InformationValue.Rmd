@@ -23,10 +23,31 @@ The functions in `InformationValue` package are broadly divided in following cat
 
 First, lets define the meaning of the various terms used in this document.
 
-## 0. Definitions
+## Definitions: Lets understand the terms
+> **Sensitivity**, a.k.a *True Positive Rate* is the proportion of the events (ones) that a model predicted correctly as events, for a given prediction probability cut-off. 
+
+> **Specificity**, a.k.a * 1 - False Positive Rate* is the proportion of the non-events (zeros) that a model predicted correctly as non-events, for a given prediction probability cut-off.
+
 > **False Positive Rate** is the proportion of non-events (zeros) that were predicted as events (ones)
 
-> **False Negative Rate** is the proportion of events(ones) that were predicted as non-events (zeros)
+> **False Negative Rate** is the proportion of events (ones) that were predicted as non-events (zeros)
+
+> **Mis-classification error** is the proportion of observations (both events and non-event) that were not predicted correctly.
+
+> **Concordance** is the percentage of *all-possible-pairs-of-predicted Ones and Zeros* where the scores of actual ones are greater than the scores of actual zeros. It represents the predictive power of a binary classification model.
+
+> **Weights of Evidence (WOE)** provides a method of recoding the categorical `x` variable to continuous variables. For each category of a categorical variable, the **WOE** is calculated as:
+$$WOE = ln(\frac{perc.good. of. all. goods}{perc.bad. of. all. bads}) $$ 
+In above formula, 'goods' is same as 'ones' and 'bads' is same as 'zeros'.
+
+> **Information Value (IV)** is a measure of the predictive capability of a categorical `x` variable to accurately predict the goods and bads. For each category of `x`, information value is computed as:
+$$IV = (perc.Good. of. all. goods - perc.Bad. of. all. bads) * WOE $$ 
+The total IV of a variable is the sum of IV's of its categories. Here is what the values of IV mean according to Siddiqi (2006):
+
+* Less than 0.02, then the predictor is not useful for modeling (separating the Goods from the Bads)
+* 0.02 to 0.1, then the predictor has only a weak relationship.
+* 0.1 to 0.3, then the predictor has a medium strength relationship.
+* 0.3 or higher, then the predictor has a strong relationship.
 
 ## 1. Diagnostics of predicted probability scores
 ### 1.1 `plotROC`
@@ -186,3 +207,6 @@ The `IV` of the categorical variables is the sum of information value of its ind
 options(scipen = 999, digits = 4)
 IV(X=SimData$X.Cat, Y=SimData$Y.Binary)
 ```
+
+> "He who gives up code safety for code speed deserves neither."
+For more information and examples, visit [rstatistics.net  ](http://rstatistics.net)
