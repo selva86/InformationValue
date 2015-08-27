@@ -49,15 +49,16 @@ pre.sourceCode.r {
 
 
 table {
-  font-family: "Helvetica Neue", Helvetica, sans-serif
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  margin:auto; /*Center the table*/
 }
 
+
 caption {
-  text-align: left;
+  text-align: center;
   color: silver;
-  font-weight: bold;
   text-transform: uppercase;
-  padding: 5px;
+  padding: 2px;
 }
 
 thead {
@@ -67,13 +68,18 @@ thead {
 
 th,
 td {
-  padding: 5px 10px;
+  padding: 2px 5px;
 }
 
 tbody tr:nth-child(even) {
   background: WhiteSmoke;
 }
 
+tbody tr td {
+  font-family: monospace;
+  text-align:center;
+}
+/*
 tbody tr td:nth-child(2) {
   text-align:center;
 }
@@ -83,7 +89,7 @@ tbody tr td:nth-child(4) {
   text-align: right;
   font-family: monospace;
 }
-
+*/
 tfoot {
   background: SeaGreen;
   color: white;
