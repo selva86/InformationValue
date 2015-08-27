@@ -85,7 +85,7 @@ specificity(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$P
 ### 1.4. `youdensIndex`
 Youden’s J Index (Youden 1950), calculated as
 $$J = Sensitivity + Specificity − 1$$
-represents the proportions of correctly predicted observations for both the events (Ones) and nonevents (Zeros). IT is particularly useful if you want a single measure that accounts for both *false-positive* and *false-negative* rates
+represents the proportions of correctly predicted observations for both the events (Ones) and nonevents (Zeros). It is particularly useful if you want a single measure that accounts for both *false-positive* and *false-negative* rates
 
 ```{r, results='asis', prompt=TRUE, highlight=TRUE, collapse=TRUE, message=FALSE, warning=FALSE, tidy=TRUE, comment='#'}
 youdensIndex(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
@@ -102,7 +102,7 @@ misClassError(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores
 
 
 ### 2.2. `kappaCohen`
-[`Cohen's Kappa`](https://en.wikipedia.org/wiki/Cohen%27s_kappa) is a robust accuracy measure that accounts for the percentage aggreement that would occur by chance.
+[`Cohen's Kappa`](https://en.wikipedia.org/wiki/Cohen%27s_kappa) is a robust accuracy measure that accounts for the percentage agreement that would occur by chance.
 
 ```{r, results='asis', prompt=TRUE, highlight=TRUE, collapse=TRUE, message=FALSE, warning=FALSE, tidy=TRUE, comment='#'}
 kappaCohen(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
