@@ -32,13 +32,15 @@ First, lets define the meaning of the various terms used in this document.
 > **Concordance** is the percentage of *all-possible-pairs-of-predicted Ones and Zeros* where the scores of actual ones are greater than the scores of actual zeros. It represents the predictive power of a binary classification model.
 
 > **Weights of Evidence (WOE)** provides a method of recoding the categorical `x` variable to continuous variables. For each category of a categorical variable, the **WOE** is calculated as:
-$$WOE = ln(\frac{perc.good. of. all. goods}{perc.bad. of. all. bads}) $$ 
-In above formula, 'goods' is same as 'ones' and 'bads' is same as 'zeros'.
+
+> WOE = ln(\frac{perc.good. of. all. goods}{perc.bad. of. all. bads})
+
+> In above formula, 'goods' is same as 'ones' and 'bads' is same as 'zeros'.
 
 > **Information Value (IV)** is a measure of the predictive capability of a categorical `x` variable to accurately predict the goods and bads. For each category of `x`, information value is computed as:
-$$IV = (perc.Good. of. all. goods - perc.Bad. of. all. bads) * WOE $$ 
-The total IV of a variable is the sum of IV's of its categories. Here is what the values of IV mean according to Siddiqi (2006):
 
+> IV = (perc.Good. of. all. goods - perc.Bad. of. all. bads) * WOE  
+> The total IV of a variable is the sum of IV's of its categories. Here is what the values of IV mean according to Siddiqi (2006):
 * Less than 0.02, then the predictor is not useful for modeling (separating the Goods from the Bads)
 * 0.02 to 0.1, then the predictor has only a weak relationship.
 * 0.1 to 0.3, then the predictor has a medium strength relationship.
