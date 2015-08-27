@@ -33,7 +33,7 @@ First, lets define the meaning of the various terms used in this document.
 
 > **Weights of Evidence (WOE)** provides a method of recoding the categorical `x` variable to continuous variables. For each category of a categorical variable, the **WOE** is calculated as:
 
-> WOE = ln(\frac{perc.good. of. all. goods}{perc.bad. of. all. bads})
+> WOE = ln(perc.good. of. all. goods/perc.bad. of. all. bads)
 
 > In above formula, 'goods' is same as 'ones' and 'bads' is same as 'zeros'.
 
