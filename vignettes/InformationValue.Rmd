@@ -69,11 +69,6 @@ You can also get the sensitivity matrix used to make the plot by turning on `ret
 sensMat <- plotROC(actuals=ActualsAndScores$Actuals,  predictedScores=ActualsAndScores$PredictedScores, returnSensitivityMat = TRUE)
 ```
     
-    
-```{r, echo=FALSE, results='hide', tab.cap="Top 10 rows of sensitivity matrix used to make the plot", prompt=TRUE, highlight=TRUE}
-options(scipen = 999, digits = 2)
-knitr::kable(head(sensMat, 50))
-```  
 
 ### 1.2. `sensitivity`
 Sensitivity, also considered as the 'True Positive Rate' is the proportion of 'Events' (or 'Ones') correctly predicted by the model, for a given prediction probability cutoff score. The default cutoff score for the `specificity` function unless specified by the `threshold` argument is taken as `0.5`.
@@ -168,10 +163,6 @@ By setting the `returnDiagnostics=TRUE` you can get the `sensitivityTable` that 
 sens_table <- optimalCutoff(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores, optimiseFor="Both", returnDiagnostics=TRUE)$sensitivityTable
 ```
 
-```{r, echo=FALSE, results='asis', tab.cap="Top 10 rows of sensitivity matrix used to make the plot", prompt=TRUE, highlight=TRUE}
-knitr::kable(sens_table)
-```  
-
 ### 3.2. `WOE`
 Computes the Weights Of Evidence (WOE) for each group of a given categorical X and binary response Y.
 
@@ -179,10 +170,6 @@ Computes the Weights Of Evidence (WOE) for each group of a given categorical X a
 WOE(X=SimData$X.Cat, Y=SimData$Y.Binary)
 ```
 
-Displaying first 6 rows:
-```{r, echo=FALSE, results='asis', tab.cap="Top 10 rows of sensitivity matrix used to make the plot", prompt=TRUE, highlight=TRUE}
-knitr::kable(head(WOE(X=SimData$X.Cat, Y=SimData$Y.Binary), 6))
-```  
 
 ### 3.3. `WOETable`
 Generates the WOE table showing the percentage goods, bads, WOE and IV for each category of `X`. WOE for a given category of `X` is computed as:
@@ -192,11 +179,6 @@ $$WOE = ln(\frac{perc.Good}{perc.Bad}) $$
 options(scipen = 999, digits = 2)
 WOETable(X=SimData$X.Cat, Y=SimData$Y.Binary)
 ```
-
-```{r, echo=FALSE, results='asis', tab.cap="Top 10 rows of sensitivity matrix used to make the plot", prompt=TRUE, highlight=TRUE}
-options(scipen = 999, digits = 2)
-knitr::kable(WOETable(X=SimData$X.Cat, Y=SimData$Y.Binary))
-```  
 
 
 ### 3.4. `IV`
