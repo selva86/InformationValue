@@ -12,6 +12,7 @@ vignette: >
   %\VignetteIndexEntry{Vignette Title Subtitle}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\SweaveUTF8
 ---
 The functions in `InformationValue` package are broadly divided in following categories:
 
