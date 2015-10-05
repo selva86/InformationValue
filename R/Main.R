@@ -427,7 +427,7 @@ WOETable <- function(X, Y, valueOfGood=1){
 
     # Load the number of goods and bads within each category.
     for(catg in levels(X)){  # catg => current category
-      woeTable[woeTable$CAT == catg, c(3, 2)] <- table(Y[X==catg])  # assign the good and bad count for current category.
+      try(woeTable[woeTable$CAT == catg, c(3, 2)] <- table(Y[X==catg]), silent=T)  # assign the good and bad count for current category.
       woeTable[woeTable$CAT == catg, "TOTAL"] <- sum(X==catg , na.rm=T)
     }
 
