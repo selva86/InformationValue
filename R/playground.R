@@ -1,3 +1,18 @@
+# Functions for binning continuous variable
+# 
+# Create funcs to fine classing and coarse classing of factor variables. 
+# 
+# Add Confusion Matrix
+# 
+# Add KS statistic
+# 
+# Func for WOE for all vars in df
+# 
+# Func to get IV summary for all vars in a df
+# 
+# plot IVs
+
+
 library(InformationValue)
 inputData <- read.csv("http://rstatistics.net/wp-content/uploads/2015/09/adult.csv")
 inp <- read.csv("http://rstatistics.net/wp-content/uploads/2015/09/adult.csv")
