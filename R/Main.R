@@ -551,3 +551,85 @@ optimalCutoff <- function(actuals, predictedScores, optimiseFor="misclasserror",
     return(output)
   }
 }
+
+### KS Statistic
+ks_table <- function(actuals, predictedScores){
+  # sort the actuals and predicred scores and create 10 groups.
+  dat <- data.frame(actuals, predictedScores)
+  dat <- dat[order(-dat$predictedScores), ]
+  rows_in_each_grp <- round(nrow(dat)/10)
+  first_9_grps <- rep(1:9, each=rows_in_each_grp) 
+  last_grp <- rep(10, nrow(dat)-length(first_9_grps))
+  grp_index <- c(first_9_grps, last_grp)
+  dat <- cbind(grp_index, dat)
+  
+  # init the ks_table and make the columns.
+  ks_tab <- data.frame(rank=1:10, total_pop=as.numeric(table(dat$grp_index)))
+  ks_tab[c("non_responders", "responders")] <- as.data.frame.matrix(table(dat$grp_index, dat$actuals))
+  perc_responders_tot <- sum(ks_tab$responders)/sum(ks_tab$total_pop)  # percentage of total responders.
+  ks_tab$expected_responders_by_random <- ks_tab$total_pop * perc_responders_tot  # expected responders if there was no model.
+  ks_tab$perc_responders <- ks_tab$responders/sum(ks_tab$responders)
+  ks_tab$perc_non_responders <- ks_tab$non_responders/sum(ks_tab$non_responders)
+  ks_tab$cum_perc_responders <- cumsum(ks_tab$perc_responders)
+  ks_tab$cum_perc_non_responders <- cumsum(ks_tab$perc_non_responders)
+  ks_tab$difference <- ks_tab$cum_perc_responders - ks_tab$cum_perc_non_responders
+  return(ks_tab)
+}
+
+# ks_table(a, p)
+
+# ks_stat
+#' @title ks_stat
+#' @description Compute the Kolmogorov-Smirnov statistic
+#' @details Compute the KS statistic for a given actuals and predicted scores for a binary response variable. KS statistic is calculated as the maximum difference between the cumulative true positive and cumulative false positive rate. 
+#' Set returnKSTable to TRUE to see the calculations from ks_table.
+#' @author Selva Prabhakaran \email{selva86@@gmail.com}
+#' @export ks_stat
+#' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
+#' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
+#' @param returnKSTable If set to TRUE, returns the KS table used to calculate the KS statistic instead. Defaults to FALSE.
+#' @return The KS statistic for a given actual values of a binary response variable and the respective prediction probability scores.
+#' @examples
+#' data('ActualsAndScores')
+#' ks_stat(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
+ks_stat <- function(actuals, predictedScores, returnKSTable=FALSE){
+  # the max of ks_table$difference
+  ks_tab <- ks_table(actuals=actuals, predictedScores = predictedScores)
+  if(returnKSTable){
+    return(ks_tab)
+  }else{
+    return(round(max(ks_tab$difference), 4))  
+  }
+}
+
+# ks_stat(a, p, returnKSTable=T)
+
+# ks_plot
+#' @title ks_plot
+#' @description Plot the cumulative percentage of responders (ones) captured by the model
+#' @details Plot the cumulative percentage of responders (ones) captured by the model against the expected cumulative percentage of responders at random (i.e. had there been no model).
+#' The greater the distance between the random and model cumulatives, the better is the predictive ability of the model to effectively capture the responders (ones).
+#' @author Selva Prabhakaran \email{selva86@@gmail.com}
+#' @export ks_plot
+#' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
+#' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
+#' @return The KS plot
+#' @examples
+#' data('ActualsAndScores')
+#' ks_plot(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
+
+ks_plot <- function(actuals, predictedScores){
+  rank <- 0:10
+  model <- c(0, ks_table(actuals = actuals, predictedScores = predictedScores)$cum_perc_responders)*100
+  random <- seq(0, 100, 10)
+  df <- data.frame(rank, random, model)
+  df_stack <- stack(df, c(random, model))
+  df_stack$rank <- rep(rank, 2)
+  df_stack$delta <- df_stack$values[12:22]-df_stack$values[1:11]
+  
+  print(ggplot2::ggplot(df_stack, aes(x=rank, y=values, colour=ind, label=paste0(round(values, 2), "%"))) + geom_line(size=1.25) + labs(x="rank", y="Percentage Responders Captured", title="KS Plot") +
+          theme(plot.title = element_text(size=20, face="bold")) + geom_text(aes(y=values+4)))
+}
+
+# ks_plot(a, p)
+
