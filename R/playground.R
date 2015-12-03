@@ -116,3 +116,62 @@ a <- iv.mult(inputData[, c(factor_vars, "ABOVE50K")], y="ABOVE50K", summary = T)
 #> 5    0.11671564        0
 #> 6    0.02538318        0
 
+# KS Statistic
+data("ActualsAndScores")
+a <- ActualsAndScores$Actuals
+p <- ActualsAndScores$PredictedScores
+actuals <- ActualsAndScores$Actuals
+predictedScores <- ActualsAndScores$PredictedScores
+
+ks_table <- function(actuals, predictedScores){
+  # sort the actuals and predicred scores and create 10 groups.
+  dat <- data.frame(actuals, predictedScores)
+  dat <- dat[order(-dat$predictedScores), ]
+  rows_in_each_grp <- round(nrow(dat)/10)
+  first_9_grps <- rep(1:9, each=rows_in_each_grp) 
+  last_grp <- rep(10, nrow(dat)-length(first_9_grps))
+  grp_index <- c(first_9_grps, last_grp)
+  dat <- cbind(grp_index, dat)
+  
+  # init the ks_table and make the columns.
+  ks_tab <- data.frame(rank=1:10, total_pop=as.numeric(table(dat$grp_index)))
+  ks_tab[c("non_responders", "responders")] <- as.data.frame.matrix(table(dat$grp_index, dat$actuals))
+  perc_responders_tot <- sum(ks_tab$responders)/sum(ks_tab$total_pop)  # percentage of total responders.
+  ks_tab$expected_responders_by_random <- ks_tab$total_pop * perc_responders_tot  # expected responders if there was no model.
+  ks_tab$perc_responders <- ks_tab$responders/sum(ks_tab$responders)
+  ks_tab$perc_non_responders <- ks_tab$non_responders/sum(ks_tab$non_responders)
+  ks_tab$cum_perc_responders <- cumsum(ks_tab$perc_responders)
+  ks_tab$cum_perc_non_responders <- cumsum(ks_tab$perc_non_responders)
+  ks_tab$difference <- ks_tab$cum_perc_responders - ks_tab$cum_perc_non_responders
+  return(ks_tab)
+}
+
+ks_table(a, p)
+
+ks_stat <- function(actuals, predictedScores){
+  # the max of ks_table$difference
+  return(round(max(ks_table(actuals=actuals, predictedScores = predictedScores)$difference), 4))
+}
+
+ks_stat(a, p)
+
+ks_plot <- function(actuals, predictedScores){
+  rank <- 0:10
+  model <- c(0, ks_table(actuals = actuals, predictedScores = predictedScores)$cum_perc_responders)*100
+  random <- seq(0, 100, 10)
+  df <- data.frame(rank, random, model)
+  df_stack <- stack(df, c(random, model))
+  df_stack$rank <- rep(rank, 2)
+  df_stack$delta <- df_stack$values[12:22]-df_stack$values[1:11]
+  
+  print(ggplot2::ggplot(df_stack, aes(x=rank, y=values, colour=ind, label=paste0(round(values, 2), "%"))) + geom_line(size=1.25) + labs(x="rank", y="Percentage Responders Captured", title="KS Plot") +
+          theme(plot.title = element_text(size=20, face="bold")) + geom_text(aes(y=values+4)))
+}
+
+ks_plot(a, p)
+
+
+
+
+
+
