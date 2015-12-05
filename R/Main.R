@@ -330,7 +330,7 @@ plotROC <- function(actuals, predictedScores, Show.labels=F, returnSensitivityMa
       theme(legend.position="none",
             plot.title=element_text(size=20, colour = "steelblue"),
             axis.title.x=element_text(size=15, colour = "steelblue"),
-            axis.title.y=element_text(size=15, colour = "steelblue")))
+            axis.title.y=element_text(size=15, colour = "steelblue")) + coord_cartesian(xlim=c(0,1), ylim = c(0,1)))
   } else {
     print(bp + geom_ribbon(color="#3399FF", fill="#3399FF", aes(ymin=0, ymax=sensitivity)) +
       labs(title="ROC Curve", x="1-Specificity (FPR)", y="Sensitivity (TPR)") +
@@ -338,7 +338,7 @@ plotROC <- function(actuals, predictedScores, Show.labels=F, returnSensitivityMa
       theme(legend.position="none",
             plot.title=element_text(size=20, colour = "steelblue"),
             axis.title.x=element_text(size=15, colour = "steelblue"),
-            axis.title.y=element_text(size=15, colour = "steelblue")) +  geom_text(aes(size=0.1)))
+            axis.title.y=element_text(size=15, colour = "steelblue")) +  geom_text(aes(size=0.1)) + coord_cartesian(xlim=c(0,1), ylim = c(0,1)))
   }
 
   if(returnSensitivityMat){
@@ -626,7 +626,8 @@ ks_plot <- function(actuals, predictedScores){
   df_stack <- stack(df, c(random, model))
   df_stack$rank <- rep(rank, 2)
   df_stack$delta <- df_stack$values[12:22]-df_stack$values[1:11]
-  
+  values <- df_stack$values
+  ind <- df_stack$ind
   print(ggplot2::ggplot(df_stack, aes(x=rank, y=values, colour=ind, label=paste0(round(values, 2), "%"))) + geom_line(size=1.25) + labs(x="rank", y="Percentage Responders Captured", title="KS Plot") +
           theme(plot.title = element_text(size=20, face="bold")) + geom_text(aes(y=values+4)))
 }

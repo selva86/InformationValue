@@ -165,3 +165,9 @@
 # }
 # 
 # # ks_plot(a, p)
+
+
+
+# R CMD build InformationValue
+# R CMD check InformationValue_1.1.2.tar.gz --as-cran
+# R CMD rd2pdf InformationValue
