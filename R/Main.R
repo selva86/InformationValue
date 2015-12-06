@@ -127,6 +127,49 @@ specificity <- function(actuals, predictedScores, threshold=0.5){
 # Sample Run:
 # specificity(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
 
+# precision
+#' @title precision
+#' @description Calculate the precision or positive predictive value for a given set of actuals and predicted probability scores.
+#' @details For a given given binary response actuals and predicted probability scores, precision is defined as the proportion of observations with the event out of the total positive predictions.
+#' @author Selva Prabhakaran \email{selva86@@gmail.com}
+#' @export precision
+#' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
+#' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
+#' @param threshold If predicted value is above the threshold, it will be considered as an event (1), else it will be a non-event (0). Defaults to 0.5.
+#' @return The precision or the positive predictive value.
+#' @examples
+#' data('ActualsAndScores')
+#' precision(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
+precision <- function(actuals, predictedScores, threshold=0.5){
+  predicted_dir <- ifelse(predictedScores < threshold, 0, 1)
+  actual_dir <- actuals
+  no_with_and_predicted_to_have_event <- sum(actual_dir == 1 & predicted_dir == 1, na.rm=T)
+  no_predicted_event <- sum(predicted_dir == 1, na.rm=T)
+  return(no_with_and_predicted_to_have_event/no_predicted_event)
+}
+
+
+# Negative Predictive Value
+#' @title npv
+#' @description Calculate the negative predictive value for a given set of actuals and predicted probability scores.
+#' @details For a given given binary response actuals and predicted probability scores, negative predictive value is defined as the proportion of observations without the event out of the total negative predictions.
+#' @author Selva Prabhakaran \email{selva86@@gmail.com}
+#' @export npv
+#' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
+#' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
+#' @param threshold If predicted value is above the threshold, it will be considered as an event (1), else it will be a non-event (0). Defaults to 0.5.
+#' @return The negative predictive value for a given set of actuals and probability scores, with the specified cutoff threshold.
+#' @examples
+#' data('ActualsAndScores')
+#' npv(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
+npv <- function(actuals, predictedScores, threshold=0.5){
+  predicted_dir <- ifelse(predictedScores < threshold, 0, 1)
+  actual_dir <- actuals
+  no_without_and_predicted_to_not_have_event <- sum(actual_dir != 1 & predicted_dir != 1, na.rm=T)
+  no_predicted_to_not_have_event <- sum(predicted_dir != 1, na.rm=T)
+  return(no_without_and_predicted_to_not_have_event/no_predicted_to_not_have_event)
+}
+
 
 # youdensIndex
 #' @title youdensIndex
@@ -527,13 +570,13 @@ optimalCutoff <- function(actuals, predictedScores, optimiseFor="misclasserror",
 
   # Select the cutoff
   if(optimiseFor=="Both"){
-    rowIndex <- which(sensMat$YOUDENSINDEX == max(as.numeric(sensMat$YOUDENSINDEX)))
+    rowIndex <- which(sensMat$YOUDENSINDEX == max(as.numeric(sensMat$YOUDENSINDEX)))[1]  # choose the maximum cutoff
   }else if(optimiseFor=="Ones"){
-    rowIndex <- which(sensMat$TPR == max(as.numeric(sensMat$TPR)))[1]
+    rowIndex <- which(sensMat$TPR == max(as.numeric(sensMat$TPR)))[1]  # choose the maximum cutoff
   }else if(optimiseFor=="Zeros"){
-    rowIndex <- tail(which(sensMat$SPECIFICITY == max(as.numeric(sensMat$SPECIFICITY))), 1)
+    rowIndex <- tail(which(sensMat$SPECIFICITY == max(as.numeric(sensMat$SPECIFICITY))), 1)  # choose the minimum cutoff
   }else if(optimiseFor=="misclasserror"){
-    rowIndex <- tail(which(sensMat$MISCLASSERROR == min(as.numeric(sensMat$MISCLASSERROR))), 1)
+    rowIndex <- tail(which(sensMat$MISCLASSERROR == min(as.numeric(sensMat$MISCLASSERROR))), 1)  # choose the minimum cutoff
   }
 
   # what should the function return

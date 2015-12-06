@@ -1,12 +1,12 @@
 Package: InformationValue
 Type: Package
-Title: Performance Analysis and Companion Functions for Binary Classification Problems
-Version: 1.1.2
+Title: Performance Analysis and Companion Functions for Binary Classification Models
+Version: 1.2.1
 Date: 2015-12-06
 Author: Selva Prabhakaran
 Maintainer: Selva Prabhakaran <selva86@gmail.com>
-URL: http://r-statistics.co
-Description: Provides companion function for analysing the performance of classification models. Also, provides function to optimise probability cut-off score based on used specified objectives, Plot 'ROC' Curve in 'ggplot2', 'AUROC', 'IV', 'WOE' Calculation, etc to aid accuracy improvement in binary classification models.
+URL: http://r-statistics.co/Information-Value-With-R.html
+Description: Provides companion function for analysing the performance of classification models. Also, provides function to optimise probability cut-off score based on used specified objectives, Plot 'ROC' Curve in 'ggplot2', 'AUROC', 'IV', 'WOE' Calculation, 'KS Statistic' etc to aid accuracy improvement in binary classification models.
 License: GPL (>= 2)
 BugReports: https://github.com/selva86/InformationValue/issues License:
         GPL (>= 2)
