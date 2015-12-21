@@ -675,5 +675,294 @@ ks_plot <- function(actuals, predictedScores){
           theme(plot.title = element_text(size=20, face="bold")) + geom_text(aes(y=values+4)))
 }
 
-# ks_plot(a, p)
+
+# Fn to compute chi_table. If forClus=T, then, the table(X,Y) will be returned.
+chi_table <- function(X, Y, forClus=F){
+  cm <- data.frame(matrix(table(Y, X), nrow = length(unique(Y))))  # contingency matrix
+  colnames(cm) <- colnames(table(Y, X))
+  rownames(cm) <- rownames(table(Y, X))
+  
+  ### Compute expected contingency matrix scores and chi.
+  nr <- as.integer(nrow(cm))
+  nc <- as.integer(ncol(cm))
+  if (is.na(nr) || is.na(nc) || is.na(nr * nc)) 
+    stop("invalid nrow(x) or ncol(x)", domain = NA)
+  sr <- rowSums(cm)
+  sc <- colSums(cm)
+  E <- outer(sr, sc, "*")/sum(cm)  # expected contingency mat scores.
+  
+  chi <- colSums((cm - E)^2/E)  # chi scores.
+  chi2 <- colSums((cm - E)/E)  # chi scores.
+  chi2_vals <- t((cm - E)/E)
+  pvalue <- round(pchisq(chi, 1, lower.tail = F), 4)  # # p-values
+  n_obs <- as.numeric(table(X))  # number of observations.
+  chi_tbl <- data.table(var=names(chi), n_obs, chi, chi2, pvalue, perc_chi=round(chi/sum(chi, na.rm=T), 2))
+  if(forClus){
+    return(chi2_vals)
+  }else{
+    return(chi_tbl)  
+  }
+}
+
+# Compute the chi_combined and chi2_combined columns in the chi_table(ct).
+# Used in the adj_pooling method of coarse function.
+chi_table_combined <- function(X_intvl, Y){
+  # Create the chi table
+  ct <- chi_table(X_intvl, Y)
+  ct[, perc_chi := NULL]
+  ct$chi_combined <- 0
+  ct$chi2_combined <- 0
+  # Iterate through every row an dcompute the chi and chi2 of combined intervals.
+  for(rownum in 2:nrow(ct)){
+    prev_intvl <- ct[rownum-1, var]
+    curr_intvl <- ct[rownum, var]
+    temp_X_intvl <- X_intvl  # saving in temp var so, X_intvl does not get overwritten.
+    temp_X_intvl[which(as.character(X_intvl) == prev_intvl)] <- curr_intvl
+    ct_temp <- chi_table(temp_X_intvl, Y)
+    ct[rownum-1, "chi_combined"] <- ct_temp[complete.cases(ct_temp)][rownum-1, chi]  # com
+    ct[rownum-1, "chi2_combined"] <- ct_temp[complete.cases(ct_temp)][rownum-1, chi2]
+  }  # chi ad chi2 of current and prev level combined is finished computing!
+  return(ct)
+}
+
+# Chi_table for monotonic method
+chi_table_monotonic <- function(X_intvl, Y){
+  # Create the chi table
+  ct <- chi_table(X_intvl, Y)
+  ct[, perc_chi := NULL]
+  
+  # Start iteration `i`
+  level_initialised <- T  # Switch to mark the init of level.
+  i=1
+  ct[[paste0("level", i)]] <- 0
+  ct[[paste0("level", i)]][1] <- abs(ct[1, chi2])  # update chi2 for 1st row
+  level_initialised <- F  # Switch to mark update of chi2 in 1st row
+  
+  for(rownum in 2:nrow(ct)){
+    if(!level_initialised){
+      # compute abs(chi2)
+      prev_intvl <- ct[rownum-1, var]
+      curr_intvl <- ct[rownum, var]
+      X_intvl[which(as.character(X_intvl) == prev_intvl)] <- curr_intvl
+      ct[[paste0("level", i)]][rownum] <- abs_chi2 <- abs(chi_table(X_intvl, Y)$chi2[rownum])
+    } else{ # new level initialised
+      ct[[paste0("level", i)]][rownum] <- abs_chi2 <- abs(ct[rownum, chi2])  # update chi2 for 1st row
+      level_initialised <- F  # Switch to mark update of chi2 in 1st row
+    }
+    
+    if(abs_chi2 < ct[[paste0("level", i)]][rownum-1]){  # chk if curr chi2 is less than prev chi2
+      i=i+1
+      ct[[paste0("level", i)]] <- 0
+      level_initialised <- T  # Switch to mark the init of level.
+    }
+  }
+  return(ct)
+}
+
+
+# Function to do coarse classing.
+coarse <- function(df, y, x, k=-1, ordered=T, returndetails=F, method="chi_signif_levels"){
+  df <- data.table(df)
+  df <- df[, c(y, x), with=F]
+  df <- df[complete.cases(df)]  # keep only complete cases
+  num_classes <- NROW(unique(na.omit(df[, y, with=F])))  # if num_classes=2 => binary.
+  
+  Y <- as.character(df[[y]])  # save Y as character
+  
+  # Check if X is ordered. If yes, it should be numeric or integer.
+  if(ordered){
+    # If ordered put X as a number
+    if(!class(df[[x]]) %in% c("integer", "numeric")){
+      stop("X should be a numeric or integer if ordered=T")
+    }
+    X <- as.numeric(df[[x]])  
+  } else{
+    # If not ordered, put it as a string
+    X <- as.character(df[[x]])  
+  }
+  
+  # Chck if y is binary
+  if(num_classes == 2){
+    # Check if the binary has only 1 or 0.
+    if(!all(unique(as.numeric(Y)) %in% c(1, 0))){
+      stop("Y is binary, so it should have only 1 and 0 as values.")
+    }
+  }
+  
+  # chk if length of x and y are same
+  if(length(X) != length(Y)){
+    stop("X and Y should be of same length")
+  }
+  
+  ### Compute contingency matrix (cm)
+  chi_tbl <- chi_table(X, Y)
+  
+  # Initialise output
+  output <- vector(length=6, mode="list")
+  names(output) <- c("X", "orig_chi_table", "new_chi_table", "instruc", "pvalue", "chi") 
+  output$orig_chi_table <- data.frame(chi_tbl)
+  
+  # Method 1: Suitable for non-numeric, unordered X factors
+  # Leave significant levels alone and club all non-significant ones as one level.
+  if(method == "chi_signif_levels"){
+    signif_dt <- chi_tbl[pvalue <= 0.05]
+    notsignif_dt <- chi_tbl[pvalue > 0.05]
+    X[as.character(X) %in% notsignif_dt[, var]] <- "other"
+    output$X <- X
+    output$instruc <- paste(paste(notsignif_dt$var, collapse = ","), "were clubbed as 'other'")
+    output$new_chi_table <- data.frame(chi_table(X, Y))
+    chi_test <- suppressWarnings(chisq.test(X, Y))
+    output$pvalue <- round(chi_test$p.value, 4)
+    output$chi <- chi_test$statistic
+    # return output
+    if(returndetails){
+      return(output)    
+    }else{
+      return(X)
+    }
+  }
+  
+  # Method 2: Suitable for non-numeric, unordered X variables.
+  # Club all levels in n clusters specified by user, starting with non-significant ones.
+  if(method == "n_groups"){
+    chi_val <- chi_table(X, Y, forClus=T)
+    signif_dt_i <- chi_tbl[, .I[pvalue <= 0.05]]
+    notsignif_dt_i <- chi_tbl[, .I[pvalue > 0.05]]
+    
+    if(k > nrow(signif_dt)){  # no. of reqd levels > num signif variables.
+      n_levels <- k - NROW(signif_dt_i)
+      set.seed(100)
+      kclus <- kmeans(chi_val[notsignif_dt_i, ], n_levels)
+      
+      # Assign new levels.
+      clustered_grps <- vector(length=length(unique(kclus$cluster)), mode="list")
+      names(clustered_grps) <- paste0("level", unique(kclus$cluster))
+      
+      # Update X and save the group
+      for(clus in unique(kclus$cluster)){
+        temp_grp <- notsignif_dt$var[which(kclus$cluster == clus)]
+        X[as.character(X) %in% temp_grp] <- paste0("level", clus)
+        clustered_grps[paste0("level", clus)] <- paste(temp_grp, collapse=",")
+      }
+      output$X <- X
+      output$instruc <- clustered_grps
+      output$new_chi_table <- data.frame(chi_table(X, Y))
+      chi_test <- chisq.test(X, Y)
+      output$pvalue <- round(chi_test$p.value, 4)
+      output$chi <- chi_test$statistic
+      
+      
+    }else{  # no. of reqd levels < num signif variables. => some significant variables have o be combined.
+      n_levels <- k
+      chi_val <- chi_table(X, Y, forClus=T)
+      set.seed(100)
+      kclus <- kmeans(chi_val, n_levels)
+      
+      # Assign new levels.
+      clustered_grps <- vector(length=length(unique(kclus$cluster)), mode="list")
+      names(clustered_grps) <- paste0("level", unique(kclus$cluster))
+      for(clus in unique(kclus$cluster)){
+        temp_grp <- chi_tbl$var[which(kclus$cluster == clus)]
+        X[as.character(X) %in% temp_grp] <- paste0("level", clus)
+        clustered_grps[paste0("level", clus)] <- paste(temp_grp, collapse=",")
+      }
+      output$X <- X
+      output$instruc <- clustered_grps
+      output$new_chi_table <- data.frame(chi_table(X, Y))
+      chi_test <- suppressWarnings(chisq.test(X, Y))
+      output$pvalue <- round(chi_test$p.value, 4)
+      output$chi <- chi_test$statistic
+    }
+    # return output
+    if(returndetails){
+      return(output)    
+    }else{
+      return(X)
+    }
+  }
+  
+  
+  # Method 3: Suitable for ordered, numeric X variables. K is required.
+  # Pooling adjacent levels only, in case of ordered variable.
+  if(method=="adj_pool"){
+    X_intvl <- (cut(X, c(-Inf, unique(X))))
+    ct <- chi_table_combined(X_intvl, Y) # chi and chi2 of current and prev levels combined!
+    ct$margin <- abs(round(ct$chi2 - ct$chi2_combined, 2))
+    
+    # Combine the least margin interval.
+    curr_level <- ct[margin==min(ct$margin), ][order(n_obs)][1, var]
+    next_level <- ct[which(ct$var == curr_level) + 1, var]
+    
+    # Merge the current level(the level with minimum margin) to next level.
+    levels(X_intvl)[which(levels(X_intvl) == curr_level)] <- levels(X_intvl)[which(levels(X_intvl) == next_level)]
+    
+    # Continue above step until, k levels are reached.
+    while(length(levels(X_intvl)) > k){
+      ct <- chi_table_combined(X_intvl, Y) # chi and chi2 of current and prev levels combined!
+      ct$margin <- abs(round(ct$chi2 - ct$chi2_combined, 2))
+      
+      # Combine the least margin interval.
+      curr_level <- ct[margin==min(ct$margin), ][order(n_obs)][1, var]
+      next_level <- ct[which(ct$var == curr_level)+1, var]
+      
+      # Merge the current level(the level with minimum margin) to next level. So, X_intvl will have 1 level less.
+      levels(X_intvl)[which(levels(X_intvl) == curr_level)] <- levels(X_intvl)[which(levels(X_intvl) == next_level)]
+    }
+    
+    out <- chi_table(X_intvl, Y)  # save output tht will be returned
+    
+    # Replace with human readable levels.
+    upper_bounds <- sub(".*,", "", out$var)
+    upper_bounds <- sub("]", "", upper_bounds)
+    out$var <- paste("<=", upper_bounds)
+    
+    # Change X's representation by changing the value of levels(x).
+    # levels(X_intvl) <- out$var
+    X_intvl <- cut(X, c(-Inf, as.numeric(upper_bounds)))
+    
+    # store in output
+    output$X <- X_intvl
+    output$new_chi_table <- data.frame(chi_table(X_intvl, Y))
+    chi_test <- suppressWarnings(chisq.test(X_intvl, Y))
+    output$pvalue <- round(chi_test$p.value, 4)
+    output$chi <- chi_test$statistic
+    
+    # Return
+    if(returndetails){
+      return(output)    
+    }else{
+      return(X_intvl)
+    }
+  }
+  
+  # Method 4: Suitable for ordered, numeric X variables
+  # Monotonic adjacent pooling, in case of ordered variable.
+  if(method=="monotonic"){
+    if(is.null(k)){
+      stop("Number of required levels (k) must be provided!")
+    }
+    X_intvl <- (cut(X, c(-Inf, unique(X))))
+    ct <- chi_table_monotonic(X_intvl, Y) # chi and chi2 of current and prev levels combined!
+    level_endpoints <- apply(ct[, 6:ncol(ct), with=F], 2, FUN=function(x){which(x > 0)[length(which(x > 0)-1)]})
+    endpoints <- sub(".*,", "", ct$var[level_endpoints])
+    endpoints <- as.numeric(sub("]", "", endpoints))
+    X_intvl <- cut(X, c(-Inf, endpoints))
+    
+    # store in output
+    output$X <- X_intvl
+    output$new_chi_table <- data.frame(chi_table(X_intvl, Y))
+    chi_test <- suppressWarnings(chisq.test(X_intvl, Y))
+    output$pvalue <- round(chi_test$p.value, 4)
+    output$chi <- chi_test$statistic
+    
+    # Return
+    if(returndetails){
+      return(output)    
+    }else{
+      return(X_intvl)
+    }
+  }
+}
+
+
 
