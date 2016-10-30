@@ -193,35 +193,3 @@
 
 # Coarse classing approach 1: For numeric X
 # Implement the algorithm in this issue: http://r.789695.n4.nabble.com/R-Query-fine-classing-Logistic-Regression-td4683659.html
-
-
-
-inputData <- read.csv("http://rstatistics.net/wp-content/uploads/2015/09/adult.csv")
-head(inputData)
-
-# rpart
-library(rpart)
-rpart(FlagGB ~ TOB, data=chileancredit, method="anova")
-
-library(partykit)
-ct <- partykit::ctree(FlagGB ~ TOB, data=chileancredit, na.action=na.exclude)
-length(ct)
-width(ct)
-cutvct = data.frame(matrix(ncol = 0, nrow = 0))
-n = length(ct)
-
-for (i in 1:n) {
-  cutvct = rbind(cutvct, ct[i]$node$split$breaks)
-}
-cutvct = cutvct[order(cutvct[, 1]), ]
-ivt = data.frame(matrix(ncol = 0, nrow = 0))
-n = length(cutvct)
-
-
-
-
-
-
-chileancredit$IncomeLevel <- as.factor(chileancredit$IncomeLevel)
-sm.f <- smbinning.factor(df=chileancredit, y="FlagGB", x="IncomeLevel")
-sm <- smbinning(df=chileancredit, y="FlagGB", x="TOB")
