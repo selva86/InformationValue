@@ -675,3 +675,49 @@ ks_plot <- function(actuals, predictedScores){
   print(ggplot2::ggplot(df_stack, aes(x=rank, y=values, colour=ind, label=paste0(round(values, 2), "%"))) + geom_line(size=1.25) + labs(x="rank", y="Percentage Responders Captured", title="KS Plot") +
           theme(plot.title = element_text(size=20, face="bold")) + geom_text(aes(y=values+4)))
 }
+
+# recall
+#' @title recall
+#' @description Calculate the sensitivity for a given pair of actuals and predicted scores
+#' @details For a given binary response actuals and predicted probability scores, sensitivity is defined as number of observations with the event AND predicted to have the event divided by the number of observations with the event. It can be used as an indicator to gauge how sensitive is your model in detecting the occurence of events, especially when you are not so concerned about predicting the non-events as true.
+#' @author Selva Prabhakaran \email{selva86@@gmail.com}
+#' @export recall
+#' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
+#' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
+#' @param threshold If predicted value is above the threshold, it will be considered as an event (1), else it will be a non-event (0). Defaults to 0.5.
+#' @return The sensitivity of the given binary response actuals and predicted probability scores, which is, the number of observations with the event AND predicted to have the event divided by the nummber of observations with the event.
+#' @examples
+#' data('ActualsAndScores')
+#' recall(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
+recall <- function(actuals, predictedScores, threshold=0.5){
+  predicted_dir <- ifelse(predictedScores < threshold, 0, 1)
+  actual_dir <- actuals
+  no_with_and_predicted_to_have_event <- sum(actual_dir == 1 & predicted_dir == 1, na.rm=T)
+  no_with_event <- sum(actual_dir == 1, na.rm=T)
+  return(no_with_and_predicted_to_have_event/no_with_event)
+}
+
+
+
+# f-score
+#' @title fscore
+#' @description Computes the F1 Score for a given pair of actuals and predicted scores
+#' @details F1 Score is computed as a weighted average of precision and recall. F1 score reaches its best value at 1 and worst at 0.
+#' F1 Score = (2 * recall * precision) / (recall + precision)
+#' @author Selva Prabhakaran \email{selva86@@gmail.com}
+#' @export fscore
+#' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
+#' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
+#' @param threshold If predicted value is above the threshold, it will be considered as an event (1), else it will be a non-event (0). Defaults to 0.5.
+#' @return The F1 Score
+#' @examples
+#' data('ActualsAndScores')
+#' fscore(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
+
+fscore <- function(actuals, predictedScores, threshold=0.5){
+  predicted_dir <- ifelse(predictedScores < threshold, 0, 1)
+  actual_dir <- actuals
+  p <- precision(actuals, predictedScores)
+  r <- recall(actuals, predictedScores)
+  return((2*p*r)/(p+r))
+}

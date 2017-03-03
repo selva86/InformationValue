@@ -2,7 +2,7 @@ Package: InformationValue
 Type: Package
 Title: Performance Analysis and Companion Functions for Binary Classification
     Models
-Version: 1.2.3
+Version: 1.3.1
 Date: 2016-10-29
 Author: Selva Prabhakaran
 Maintainer: Selva Prabhakaran <selva86@gmail.com>
