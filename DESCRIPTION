@@ -13,8 +13,7 @@ Description: Provides companion function for analysing the performance of
     'AUROC', 'IV', 'WOE' Calculation, 'KS Statistic' etc to aid accuracy improvement
     in binary classification models.
 License: GPL (>= 2)
-BugReports: https://github.com/selva86/InformationValue/issues License:
-    GPL (>= 2)
+BugReports: https://github.com/selva86/InformationValue/issues
 LazyData: TRUE
 LazyLoad: yes
 Depends:
